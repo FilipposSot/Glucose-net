@@ -6,7 +6,8 @@ D1NAMO/
 D1NAMO.tgz
 diabetes-data.tar.Z
 diabetes-data/
-
+*.npz
+weights.pt
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
