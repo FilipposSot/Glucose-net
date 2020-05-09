@@ -29,7 +29,7 @@ class FCN(nn.Module):
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.fc3 = nn.Linear(hidden_size, hidden_size)
         self.fc4 = nn.Linear(hidden_size, hidden_size)
-        self.fc6 = nn.Linear(hidden_size, output_size)
+        self.fc5= nn.Linear(hidden_size, output_size)
         # self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, input):
@@ -38,8 +38,7 @@ class FCN(nn.Module):
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
         x = F.relu(self.fc4(x))
-        # x = F.relu(self.fc5(x))
-        output = self.fc6(x)
+        output = self.fc5(x)
         # output = self.softmax(output)
         return output
 

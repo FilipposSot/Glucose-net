@@ -20,7 +20,7 @@ n_output = 5
 
 n_epochs = 20000
 print_every = 100
-plot_every = 100
+plot_every = 10
 learning_rate = 0.0005 # If you set this too high, it might explode. If too low, it might not learn
 l_training = 100
 
@@ -94,6 +94,8 @@ model = CNN(n_input,len(input_indices), n_hidden, n_output).cuda()
 
 # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+# scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max, eta_min=0, last_epoch=-1)
+
 criterion = nn.MSELoss()
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -108,11 +110,12 @@ for epoch in range(1, n_epochs + 1):
     current_loss += loss
 
     # Print epoch number, loss, name and guess
-    # if epoch % print_every == 0:
-    #     print(epoch, current_loss)
+    if epoch % print_every == 0:
+        print(epoch, current_loss)
 
     # Add current loss avg to list of losses
     if epoch % plot_every == 0:
+        # scheduler.step()
         print(epoch, current_loss / plot_every)
         all_losses_training.append(current_loss / plot_every)
         # eval_loss = evaluate()
