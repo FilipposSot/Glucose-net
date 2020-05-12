@@ -46,15 +46,15 @@ class CNN(nn.Module):
     def __init__(self, input_size, input_channels, hidden_size, output_size):
         super(CNN, self).__init__()
 
-        self.conv1 = nn.Conv1d(in_channels = input_channels, out_channels = hidden_size, kernel_size = 3)
-        self.conv2 = nn.Conv1d(in_channels = hidden_size,  out_channels = hidden_size, kernel_size = 3)
-        self.conv3 = nn.Conv1d(in_channels = hidden_size,  out_channels = hidden_size, kernel_size = 3)
-        self.conv4 = nn.Conv1d(in_channels = hidden_size,  out_channels = hidden_size, kernel_size = 3)
-        self.conv5 = nn.Conv1d(in_channels = hidden_size,  out_channels = hidden_size, kernel_size = 3)
+        self.conv1 = nn.Conv1d(in_channels = input_channels, out_channels = hidden_size, kernel_size = 5)
+        self.conv2 = nn.Conv1d(in_channels = hidden_size,  out_channels = hidden_size, kernel_size = 5)
+        self.conv3 = nn.Conv1d(in_channels = hidden_size,  out_channels = hidden_size, kernel_size = 5)
+        self.conv4 = nn.Conv1d(in_channels = hidden_size,  out_channels = hidden_size, kernel_size = 5)
+        self.conv5 = nn.Conv1d(in_channels = hidden_size,  out_channels = hidden_size, kernel_size = 5)
 
         self.flatten = nn.Flatten()
 
-        self.fc1 = nn.Linear(in_features = 1920, out_features = 200)
+        self.fc1 = nn.Linear(in_features = 1280, out_features = 200)
         self.fc2 = nn.Linear(in_features = 200, out_features = 200)
         self.fc3 = nn.Linear(in_features = 200, out_features = 200)
         self.fc4 = nn.Linear(in_features = 200, out_features = output_size)

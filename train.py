@@ -1,5 +1,8 @@
 import torch
 import torch.nn as nn
+from torchsummary import summary
+torch.cuda.empty_cache()
+
 from model import RNN, FCN, CNN
 import numpy as np
 import random
@@ -10,17 +13,17 @@ import matplotlib.pyplot as plt
 import copy 
 import tqdm
 
-input_indices = [1]
+input_indices = [1,5]
 output_indices = [1]
 
 
 n_hidden = 64
 n_input = 40
-n_output = 5
+n_output = 12
 
 n_epochs = 20000
-print_every = 100
-plot_every = 10
+# print_every = 100
+plot_every = 100
 learning_rate = 0.0005 # If you set this too high, it might explode. If too low, it might not learn
 l_training = 100
 
@@ -84,14 +87,17 @@ current_loss = 0
 all_losses_training= []
 all_losses_evaluation= []
 
-data = np.load('d1namo.npz', allow_pickle=True)
+data = np.load('d1namo_insulin_rate.npz', allow_pickle=True)
 data = data['data'].tolist()
 training_data = data[:]
 eval_data = data[:]
 
 model = CNN(n_input,len(input_indices), n_hidden, n_output).cuda()
 # model = FCN(n_input, n_hidden, n_output).cuda()
+summary(model, (len(input_indices),n_input))
+# print(model)
 
+# exit()
 # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max, eta_min=0, last_epoch=-1)
@@ -99,6 +105,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 model.to(device)
 start = time.time()
 best_eval = np.inf
@@ -110,16 +117,16 @@ for epoch in range(1, n_epochs + 1):
     current_loss += loss
 
     # Print epoch number, loss, name and guess
-    if epoch % print_every == 0:
-        print(epoch, current_loss)
+    # if epoch % print_every == 0:
+    #     print(epoch, current_loss)
 
     # Add current loss avg to list of losses
     if epoch % plot_every == 0:
         # scheduler.step()
         print(epoch, current_loss / plot_every)
         all_losses_training.append(current_loss / plot_every)
-        # eval_loss = evaluate()
-        # all_losses_evaluation.append(eval_loss)
+        eval_loss = evaluate()
+        all_losses_evaluation.append(eval_loss)
 
         if current_loss < best_eval:
             torch.save(model.state_dict(), 'weights.pt')
@@ -131,13 +138,15 @@ model.load_state_dict(torch.load('weights.pt'))
 model.eval()
 # plot training and validation error
 plt.figure()
-plt.plot(all_losses_training)
-# plt.plot(all_losses_evaluation)
+plt.plot(np.arange(0,len(all_losses_training))*plot_every,all_losses_training)
+plt.plot(np.arange(0,len(all_losses_evaluation))*plot_every,all_losses_evaluation)
+plt.xlabel('Training Iterations')
 plt.ylabel('MSE Loss')
+plt.legend(['Training Loss', 'Validation Loss'])
 plt.show()
 
 # plot sample predictions
-n_tests = 5
+n_tests = 10
 
 for i in range(n_tests):
     input_data, output_data, input_tensor, _ = randomEvalInterval()
@@ -145,10 +154,11 @@ for i in range(n_tests):
     output_model = model(input_tensor)
 
     plt.figure()
-    plt.plot(np.arange(0,n_input), input_data[0,0,:n_input], 'k')
-    plt.plot(np.arange(n_input,n_input+n_output), output_data, 'r')
-    plt.plot(np.arange(n_input,n_input+n_output), output_model.cpu().detach().numpy(), 'g')
-
+    plt.plot(5*np.arange(0,n_input), input_data[0,0,:n_input], 'k--')
+    plt.plot(5*np.arange(n_input,n_input+n_output), output_data, 'r')
+    plt.plot(5*np.arange(n_input,n_input+n_output), output_model.cpu().detach().numpy(), 'g')
+    plt.legend(['Input Glucose', 'Ground Truth Output', 'Predicted Output'])
+    plt.xlabel('Time (mins)')
     plt.ylabel('Glucose level mmol/l')
     plt.show()
 
