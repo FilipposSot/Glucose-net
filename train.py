@@ -24,7 +24,7 @@ n_output = 12
 n_epochs = 20000
 # print_every = 100
 plot_every = 100
-learning_rate = 0.0005 # If you set this too high, it might explode. If too low, it might not learn
+learning_rate = 0.0005 
 l_training = 100
 
 def categoryFromOutput(output):
@@ -93,14 +93,9 @@ training_data = data[:]
 eval_data = data[:]
 
 model = CNN(n_input,len(input_indices), n_hidden, n_output).cuda()
-# model = FCN(n_input, n_hidden, n_output).cuda()
 summary(model, (len(input_indices),n_input))
-# print(model)
 
-# exit()
-# optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-# scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max, eta_min=0, last_epoch=-1)
 
 criterion = nn.MSELoss()
 
@@ -116,13 +111,8 @@ for epoch in range(1, n_epochs + 1):
     output, loss = train(input_tensor, output_tensor)
     current_loss += loss
 
-    # Print epoch number, loss, name and guess
-    # if epoch % print_every == 0:
-    #     print(epoch, current_loss)
-
-    # Add current loss avg to list of losses
     if epoch % plot_every == 0:
-        # scheduler.step()
+
         print(epoch, current_loss / plot_every)
         all_losses_training.append(current_loss / plot_every)
         eval_loss = evaluate()
@@ -136,6 +126,7 @@ for epoch in range(1, n_epochs + 1):
 
 model.load_state_dict(torch.load('weights.pt'))
 model.eval()
+
 # plot training and validation error
 plt.figure()
 plt.plot(np.arange(0,len(all_losses_training))*plot_every,all_losses_training)
